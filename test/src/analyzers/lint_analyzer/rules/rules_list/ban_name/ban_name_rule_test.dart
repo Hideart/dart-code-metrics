@@ -27,13 +27,17 @@ void main() {
           {'ident': 'showDialog', 'description': 'Please use myShowDialog'},
           {'ident': 'strangeName', 'description': 'The name is too strange'},
           {'ident': 'AnotherStrangeName', 'description': 'Oops'},
+          {
+            'ident': 'StrangeClass.someMethod',
+            'description': 'Use NonStrangeClass.someMethod instead',
+          },
         ],
       }).check(unit);
 
       RuleTestHelper.verifyIssues(
         issues: issues,
-        startLines: [6, 7, 9, 12, 15, 16],
-        startColumns: [3, 12, 7, 6, 7, 12],
+        startLines: [7, 8, 10, 13, 16, 17, 20],
+        startColumns: [3, 12, 7, 6, 7, 12, 1],
         locationTexts: [
           'showDialog',
           'showDialog',
@@ -41,6 +45,7 @@ void main() {
           'strangeName',
           'AnotherStrangeName',
           'strangeName',
+          'StrangeClass',
         ],
         messages: [
           'Please use myShowDialog (showDialog is banned)',
@@ -49,6 +54,7 @@ void main() {
           'The name is too strange (strangeName is banned)',
           'Oops (AnotherStrangeName is banned)',
           'The name is too strange (strangeName is banned)',
+          'Use NonStrangeClass.someMethod instead (StrangeClass.someMethod is banned)',
         ],
       );
     });

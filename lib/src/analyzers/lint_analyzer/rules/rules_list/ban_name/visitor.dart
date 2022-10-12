@@ -7,6 +7,8 @@ class _Visitor extends RecursiveAstVisitor<void> {
 
   Iterable<_NodeWithMessage> get nodes => _nodes;
 
+  final _nodeBreadcrumb = <Expression>{};
+
   _Visitor(List<_BanNameConfigEntry> entries)
       : _entryMap = Map.fromEntries(entries.map((e) => MapEntry(e.ident, e)));
 
@@ -33,6 +35,28 @@ class _Visitor extends RecursiveAstVisitor<void> {
 
   void _visitIdent(Expression node, SimpleIdentifier ident) {
     final name = ident.name;
+
+    final prevNode = _nodeBreadcrumb.isNotEmpty ? _nodeBreadcrumb.last : null;
+    if (node.offset - 1 == prevNode?.end) {
+      _nodeBreadcrumb.add(node);
+    } else {
+      _nodeBreadcrumb.clear();
+    }
+
+    if (_nodeBreadcrumb.isEmpty) {
+      _nodeBreadcrumb.add(node);
+    }
+
+    final breadcrumbString = _nodeBreadcrumb.map((e) => e.toString()).join('.');
+    if (_entryMap.containsKey(breadcrumbString)) {
+      _nodes.add(_NodeWithMessage(
+        _nodeBreadcrumb.first,
+        '${_entryMap[breadcrumbString]!.description} ($breadcrumbString is banned)',
+      ));
+
+      return;
+    }
+
     if (_entryMap.containsKey(name)) {
       _nodes.add(_NodeWithMessage(
         node,
